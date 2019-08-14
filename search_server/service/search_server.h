@@ -7,8 +7,7 @@
 #include <event2/buffer.h>
 #include <event2/event.h>
 #include "../common/log.h"
-#include "../strategy/insert_work.h"
-#include "../strategy/search_work.h"
+#include "./search_work.h"
 
 BEGIN_NAMESPACE(search_server, service);
 
@@ -33,8 +32,7 @@ private:
     bool                                        mStart;
     struct evhttp*                              mServer;
     struct event_base*                          mBase;
-    strategy::InsertWork*                       mInsert;
-    strategy::SearchWork*                       mSearch;
+    SearchWork*                                 mWork;
     util::ThreadPtr                             mThread;
     std::vector<util::ThreadPtr>                mThreadVector;
     util::SyncQueue<struct evhttp_request*>     mBlockingQueue;
