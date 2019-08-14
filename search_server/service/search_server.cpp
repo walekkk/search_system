@@ -2,26 +2,19 @@
 
 BEGIN_NAMESPACE(search_server, service);
 
-SearchServer::SearchServer(): mStart(false), 
-        mInsert(NULL), mSearch(NULL) {
+SearchServer::SearchServer(): mStart(false), mWork(NULL),) {
     mBase = event_base_new();
     mServer = evhttp_new(mBase);
-    mInsert = new InsertWork();
-    mSearch = new SearchWork(); 
+    mWork = new SearchWork();
 }
 
 SearchServer::~SearchServer() {
     Stop();
-    DELETE_AND_SET_NULL(mInsert);
-    DELETE_AND_SET_NULL(mSearch);
+    DELETE_AND_SET_NULL(mWork);
 }
 
 SearchServer::Init() {
-    if (!mInsert->Init()) {
-        LOG(ERROR, "insert work init error");
-        return false;
-    }
-    if (!mSearch->Init()) {
+    if (!mWork->Init()) {
         LOG(ERROR, "search work  init error");
         return false;
     }
@@ -37,14 +30,6 @@ bool SearchServer::Start() {
         return true;
     }
     mStart = true;
-    if (!mInsert->Start()) {
-        LOG(ERROR, "insert work start error");
-        return false;
-    }
-    if (!mSearch->Start()) {
-        LOG(ERROR, "search work start error");
-        return false;
-    }
 
     for (int32_t cnt = 0;cnt < 10; cnt++) {
         mThread = util::CreateThread(std::tr1::bind(
@@ -82,13 +67,6 @@ bool SearchServer::Stop() {
 
     while (mBlockingQueue.IsEmpty()) {
         mBlockingQueue.WaitNotEmpty();
-    }
-
-    if (!mInsert->Stop()) {
-        return false;
-    }
-    if (!mSearch->Stop()) {
-        return false;
     }
 
     evhttp_free(mServer);
@@ -143,9 +121,9 @@ void SearchServer::ThreadHandle() {
         }
         std::string response("");
         if (param == "insert") {
-            response = mInsert->Get(param);
+            response = mWork->Insert(param);
         } else {
-            response = mSearch->Get(param);
+            response = mWork->Search(param);
         }
 
         if (response == "") {
