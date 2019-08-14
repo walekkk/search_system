@@ -27,7 +27,9 @@ private:
     void CutString(std::string param, std::string& data1, std::string& data2);
 
     void EventCallBack(struct evhttp_request* request, void* arg);
-
+    
+    void ThreadHandle();
+    
 private:
     bool                                        mStart;
     struct evhttp*                              mServer;
