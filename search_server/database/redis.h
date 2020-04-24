@@ -24,18 +24,5 @@ private:
     char*           mIp;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 END_NAMESPACE;
 #endif
